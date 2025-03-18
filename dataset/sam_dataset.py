@@ -1,13 +1,18 @@
-import torch
-import torch.utils.data
-import numpy as np
-import itertools
 import os
 import random
 import easydict
+import itertools
+
+import numpy as np
+
+import torch
+import torch.utils.data
+
 from accelerate.logging import get_logger
 
+
 logger = get_logger(__name__, log_level="INFO")
+
 
 # Reference: torchvision `_box_cxcywh_to_xyxy`
 def cxcywh_to_xyxy(boxes, clip=False):
@@ -36,11 +41,18 @@ def cxcywh_to_xyxy(boxes, clip=False):
 
     return boxes
 
+
 class SAMDataset(torch.utils.data.IterableDataset):
-    def __init__(self, data_path, train_shards, prob_use_caption, prob_use_boxes, box_confidence_th, batch_size, transform, *, max_boxes_per_image=32, shard_shuffle_seed=None, ddp_rank, num_ddp_processes, no_caption_only=False, return_cxcywh=False):
+    def __init__(
+        self, data_path, train_shards, 
+        prob_use_caption, prob_use_boxes, 
+        box_confidence_th, batch_size, 
+        transform, ddp_rank, num_ddp_processes, *,
+        max_boxes_per_image=32, shard_shuffle_seed=None,  
+        no_caption_only=False, return_cxcywh=False
+    ):
         if shard_shuffle_seed is not None:
             self.train_shards = np.copy(train_shards)
-            
             shard_shuffle_rng = np.random.default_rng(seed=self.shard_shuffle_seed)
             shard_shuffle_rng.shuffle(train_shards)
         else:
@@ -147,6 +159,7 @@ class SAMDataset(torch.utils.data.IterableDataset):
                     if len(batch) == self.batch_size:
                         yield batch
                         batch = []
+
 
 if __name__ == "__main__":
     # python dataset/sam_dataset.py 

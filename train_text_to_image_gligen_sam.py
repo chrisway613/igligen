@@ -169,7 +169,9 @@ def log_validation(vae, text_encoder, tokenizer, unet, args, accelerator, weight
     for i in range(len(args.validation_prompts)):
         with torch.autocast("cuda"):
             image = pipeline(
-                args.validation_prompts[i], num_inference_steps=50, generator=generator, gligen_phrases=gligen_phrases, gligen_boxes=gligen_boxes, gligen_scheduled_sampling_beta=1, height=args.resolution, width=args.resolution
+                args.validation_prompts[i], num_inference_steps=50, generator=generator, 
+                gligen_phrases=gligen_phrases, gligen_boxes=gligen_boxes, 
+                gligen_scheduled_sampling_beta=1, height=args.resolution, width=args.resolution
             ).images[0]
 
         images.append(image)
@@ -868,7 +870,19 @@ def main():
     # SAMDataset repeats infinitely
     ddp_rank = accelerator.process_index
     num_ddp_processes = accelerator.num_processes
-    train_dataset = SAMDataset(data_path=args.data_path, train_shards=config.train_shards, prob_use_caption=args.prob_use_caption, prob_use_boxes=args.prob_use_boxes, box_confidence_th=0.25, batch_size=args.train_batch_size, transform=transform, shard_shuffle_seed=None, ddp_rank=ddp_rank, num_ddp_processes=num_ddp_processes, no_caption_only=args.no_caption_only)
+    train_dataset = SAMDataset(
+        data_path=args.data_path, 
+        train_shards=config.train_shards, 
+        prob_use_caption=args.prob_use_caption, 
+        prob_use_boxes=args.prob_use_boxes, 
+        box_confidence_th=0.25, 
+        batch_size=args.train_batch_size, 
+        transform=transform, 
+        shard_shuffle_seed=None, 
+        ddp_rank=ddp_rank, 
+        num_ddp_processes=num_ddp_processes, 
+        no_caption_only=args.no_caption_only
+    )
 
     # DataLoaders creation:
 
@@ -1174,7 +1188,6 @@ def main():
                         if args.use_ema:
                             # Switch back to the original UNet parameters.
                             ema_unet.restore(unet.parameters())
-
 
             logs = {"step_loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             progress_bar.set_postfix(**logs)

@@ -3,9 +3,9 @@
 export MODEL_NAME="stabilityai/stable-diffusion-2-1-base"
 
 # GPU Settings
-NUM_GPUS=4
+NUM_GPUS=2
 PARALLEL_PORT=21019
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+export CUDA_VISIBLE_DEVICES=0,1
 
 # Determine whether to use multi_gpu based on NUM_GPUS
 if [ $NUM_GPUS -eq 1 ]; then
@@ -16,7 +16,7 @@ fi
 
 # Training Setting
 BATCH_SIZE_SINGLE_GPU=8
-NUM_WORKERS=16
+NUM_WORKERS=8
 DATA_CONFIG_PATH="dataset/sam_full_boxtext2img.yaml"
 EXP_NAME=gligen_sdv2.1_bs32_sam
 
@@ -27,7 +27,7 @@ accelerate launch --multi_gpu --num_processes=$NUM_GPUS --mixed_precision="fp16"
   --config $DATA_CONFIG_PATH \
   --resolution=512 \
   --train_batch_size $BATCH_SIZE_SINGLE_GPU \
-  --gradient_accumulation_steps=1 \
+  --gradient_accumulation_steps=2 \
   --mixed_precision="fp16" \
   --max_train_steps=500000 \
   --learning_rate=5.e-05 \

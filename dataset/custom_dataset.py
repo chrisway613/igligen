@@ -15,7 +15,30 @@ logger = get_logger(__name__, log_level='INFO')
 
 # Reference: torchvision `_box_cxcywh_to_xyxy`
 def cxcywh_to_xyxy(boxes, clip=False):
-    pass
+    """
+    Converts bounding boxes from (cx, cy, w, h) format to (x1, y1, x2, y2) format.
+    (cx, cy) refers to center of bounding box.
+    (w, h) are width and height of bounding box.
+    
+    Args:
+        boxes (Array[N, 4]): boxes in (cx, cy, w, h) format which will be converted.
+        clip (bool): whether to clip out-of-bound values.
+
+    Returns:
+        boxes (Array(N, 4)): boxes in (x1, y1, x2, y2) format.
+    """
+    
+    cx, cy, w, h = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
+    
+    delta_x, delta_y = 0.5 * w, 0.5 * h
+    x1, y1 = cx - delta_x, cy - delta_y
+    x2, y2 = cx + delta_x, cy + delta_y
+    
+    boxes = np.stack([x1, y1, x2, y2], axis=1)
+    if clip:
+        boxes = np.clip(boxes, 0., 1.)
+    
+    return boxes
 
 
 class InfiniteDataset(IterableDataset):

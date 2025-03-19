@@ -68,16 +68,18 @@ logger = get_logger(__name__, log_level='INFO')
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Trainig script for a text-to-image generation example with GLIGEN model.")
-    
+
     def box_type(values):
         try:
             box = list(map(float, values.split(',')))
             if len(box) != 4:
-                raise argparse.ArgumentTypeError(f"each box must have exactly 4 elements, got: {len(box)}")
-            
+                raise argparse.ArgumentTypeError(
+                    f"each box must have exactly 4 elements, got: {len(box)}")
+
             return box
-        except ValueError:
-            raise argparse.ArgumentTypeError(f"Invalid box format: {values}. Expect 4 comma-separated floating numbers.")
+        except:
+            raise argparse.ArgumentTypeError(
+                f"Invalid box format: {values}. Expect 4 comma-separated floating numbers.")
 
     # GLIGEN
     parser.add_argument(
@@ -134,7 +136,7 @@ def parse_args():
         nargs=argparse.REMAINDER,
         help="Modify config options using the command-line 'KEY VALUE' pairs",
     )
-    
+
     # Inference
     # Resolution is used in inference (we read latents directly in training)
     parser.add_argument(
